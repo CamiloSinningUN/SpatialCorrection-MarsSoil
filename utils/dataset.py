@@ -13,6 +13,23 @@ from random import sample
 from scipy.ndimage.morphology import distance_transform_edt as distrans
 
 
+class MarsSoilDataset(Dataset):
+    def __init__(self, datapath, mode='train'):
+        self.imgs = np.load(datapath)["images"]
+        self.gts = np.load(datapath)["masks"]
+        self.mode = mode
+
+    def __len__(self):
+        return len(self.imgs)
+
+    def __getitem__(self, index):
+        img = self.imgs[index]
+        label = self.gts[index]
+        img = torch.Tensor(img.copy())
+        label = torch.Tensor(label)
+        label = label.unsqueeze(0)
+        return {'image': img, 'mask': label, 'index': index}
+
 class ISICDataset(Dataset):
     def __init__(self, datapath, gtpath, size=None, mode='train'):
         self.imgs = sorted([datapath + f for f in listdir(datapath) if not f.startswith('.')])
@@ -107,6 +124,26 @@ class JSRTDataset(Dataset):
         label = torch.Tensor(label)
         img = img.unsqueeze(0)
         return {'image': img, 'mask': label, 'index': index}
+    
+class MarsSoilDataset(Dataset):
+    def __init__(self, datapath, mode='train'):
+        self.imgs = np.load(datapath)["images"]
+        self.gts = np.load(datapath)["masks"]
+        self.mode = mode
+
+    def __len__(self):
+        return len(self.imgs)
+
+    def __getitem__(self, index):
+        img = self.imgs[index]
+        label = self.gts[index]
+        img = torch.Tensor(img.copy())
+        label = torch.Tensor(label)
+        # Create a one-hot encoding for the label
+        one_hot_label = torch.zeros(5, *label.shape)
+        for i in range(5):
+            one_hot_label[i] = (label == i).float()
+        return {'image': img, 'mask': one_hot_label, 'index': index}
 
 class LIDCDataset(Dataset):
     def __init__(self, datapath, gtpath, mode, size=None):

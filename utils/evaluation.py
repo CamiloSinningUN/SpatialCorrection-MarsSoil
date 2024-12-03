@@ -55,6 +55,28 @@ class Evaluator():
                               'Clavicle {:.2f}+-{:.2f} '.format(classwise_mean[2], classwise_std[2]) +
                               'Average {:.2f}+-{:.2f}'.format(total_mean, total_std))
             return classwise_mean
+        elif self.dataset == 'mars_soil':
+            classwise_mean = np.mean(dval[1:], axis=1)*100  # Ignore class 0
+            classwise_std = np.std(dval[1:], axis=1)*100  # Ignore class 0
+            total = np.mean(dval[1:], axis=0)
+            total_mean = np.mean(total)*100
+            total_std = np.std(total)*100
+            if not self.save_file:
+                self.logger.info('Epoch {:d} Soil--Bedrock--Sand--BigRock--Mean ({:.2f}--{:.2f}--{:.2f}--{:.2f})'
+                                .format(epoch, classwise_mean[0], classwise_mean[1], classwise_mean[2], classwise_mean[3], total_mean))
+                if self.writer:
+                    self.writer.add_scalar('eval_acc/Soil', classwise_mean[0], epoch)
+                    self.writer.add_scalar('eval_acc/Bedrock', classwise_mean[1], epoch)
+                    self.writer.add_scalar('eval_acc/Sand', classwise_mean[2], epoch)
+                    self.writer.add_scalar('eval_acc/BigRock', classwise_mean[3], epoch)
+                    self.writer.add_scalar('eval_acc/Average', total_mean, epoch)
+            else:
+                self.logger.info('Epoch {:d}: Soil {:.2f}+-{:.2f} '.format(epoch, classwise_mean[0], classwise_std[0]) +
+                              'Bedrock {:.2f}+-{:.2f} '.format(classwise_mean[1], classwise_std[1]) +
+                              'Sand {:.2f}+-{:.2f} '.format(classwise_mean[2], classwise_std[2]) +
+                              'BigRock {:.2f}+-{:.2f} '.format(classwise_mean[3], classwise_std[3]) +
+                              'Average {:.2f}+-{:.2f}'.format(total_mean, total_std))
+            return classwise_mean
         else:
             mean = np.mean(dval[0])*100
             std = np.std(dval[0])*100
@@ -77,6 +99,17 @@ class Evaluator():
             self.logger.info('Cross Eval: [Lung] {:.2f}+-{:.2f} '.format(classwise_mean[0], classwise_std[0]) +
                               '[Heart] {:.2f}+-{:.2f} '.format(classwise_mean[1], classwise_std[1]) +
                               '[Clavicle] {:.2f}+-{:.2f} '.format(classwise_mean[2], classwise_std[2]) +
+                              '[Average] {:.2f}+-{:.2f}'.format(total_mean, total_std))
+        elif dataset == 'mars_soil':
+            classwise_mean = np.mean(dsc[:, 1:], axis = 0)
+            classwise_std = np.std(dsc[:, 1:], axis = 0)
+            total = np.mean(dsc[:, 1:], axis = 1)
+            total_mean = np.mean(total)
+            total_std = np.std(total)
+            self.logger.info('Cross Eval: [Soil] {:.2f}+-{:.2f} '.format(classwise_mean[0], classwise_std[0]) +
+                              '[Bedrock] {:.2f}+-{:.2f} '.format(classwise_mean[1], classwise_std[1]) +
+                              '[Sand] {:.2f}+-{:.2f} '.format(classwise_mean[2], classwise_std[2]) +
+                              '[BigRock] {:.2f}+-{:.2f} '.format(classwise_mean[3], classwise_std[3]) +
                               '[Average] {:.2f}+-{:.2f}'.format(total_mean, total_std))
         else:
             mean = np.mean(dsc)

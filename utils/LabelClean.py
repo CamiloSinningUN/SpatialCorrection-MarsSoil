@@ -8,6 +8,7 @@ from tqdm import tqdm
 from scipy.ndimage.morphology import distance_transform_edt as distrans
 
 JSRT_CLASS = ['lung', 'heart', 'clavicle']
+MARS_SOIL_CLASS = ['background', 'Soil', 'Bedrock', 'Sand', 'BigRock']
 
 class Cleaner():
     def __init__(self, model, trueloader=None,
@@ -48,7 +49,7 @@ class Cleaner():
                 output = self.model(image)
             pred = torch.sigmoid(output).cpu().detach().squeeze().numpy()
             for i in range(self.num_class):
-                if self.dataset == 'Jsrt':
+                if self.dataset == 'mars_soil':
                     mask = (pred[i]>confidence_level).astype(float)
                     dis_pred = -distrans(mask) + distrans(1-mask)
                     dis_true = -distrans(gt[i]) + distrans(1-gt[i])
@@ -79,6 +80,9 @@ class Cleaner():
                 if self.dataset == 'Jsrt':
                     self.logger.info(JSRT_CLASS[i] + ' no need to be cleaned anymore.')
                     save_path.append(os.path.join(self.save_root, str(iter), JSRT_CLASS[i]))
+                elif self.dataset == 'mars_soil':
+                    self.logger.info(MARS_SOIL_CLASS[i] + ' no need to be cleaned anymore.')
+                    save_path.append(os.path.join(self.save_root, str(iter), MARS_SOIL_CLASS[i]))
                 else:
                     self.logger.info('No need to be cleaned anymore.')
                     self.continue_clean = False
@@ -88,6 +92,8 @@ class Cleaner():
             else:
                 if self.dataset == 'Jsrt':
                     save_path.append(os.path.join(self.save_root, str(iter), JSRT_CLASS[i]))
+                elif self.dataset == 'mars_soil':
+                    save_path.append(os.path.join(self.save_root, str(iter), MARS_SOIL_CLASS[i]))
                 else:
                     save_path.append(os.path.join(self.save_root, str(iter)))
                 if not os.path.isdir(save_path[i]):
@@ -159,6 +165,15 @@ class Cleaner():
                                 train_loader.dataset.gts_heart[id] = new_path
                             else:
                                 train_loader.dataset.gts_clavicle[id] = new_path
+                        elif self.dataset == 'mars_soil':
+                            if i == 1:
+                                train_loader.dataset.gts_soil[id] = new_path
+                            elif i == 2:
+                                train_loader.dataset.gts_bedrock[id] = new_path
+                            elif i == 3:
+                                train_loader.dataset.gts_sand[id] = new_path
+                            else:
+                                train_loader.dataset.gts_bigrock[id] = new_path
                         else:
                             train_loader.dataset.gts[id] = new_path
                 pbar.set_postfix()
@@ -184,6 +199,31 @@ class Cleaner():
                                 '{:.2f}+-{:.2f}->{:.2f}+-{:.2f} (Clavicle) '
                                 .format(noisy_classwise_mean[2], noisy_classwise_std[2], 
                                 cleaned_classwise_mean[2], cleaned_classwise_std[2]) +
+                                '{:.2f}+-{:.2f}->{:.2f}+-{:.2f} (Average) '
+                                .format(noisy_total_mean, noisy_total_std, cleaned_total_mean, cleaned_total_std))
+            elif self.dataset == 'mars_soil':
+                noisy_classwise_mean = np.mean(self.dsc_noise[1:], axis=1)*100
+                noisy_classwise_std = np.std(self.dsc_noise[1:], axis=1)*100
+                noisy_total = np.mean(self.dsc_noise[1:], axis=0)
+                noisy_total_mean = np.mean(noisy_total)*100
+                noisy_total_std = np.std(noisy_total)*100
+                cleaned_classwise_mean = np.mean(self.dsc_cleaned[1:], axis=1)*100
+                cleaned_classwise_std = np.std(self.dsc_cleaned[1:], axis=1)*100
+                cleaned_total = np.mean(self.dsc_cleaned[1:], axis=0)
+                cleaned_total_mean = np.mean(cleaned_total)*100
+                cleaned_total_std = np.std(cleaned_total)*100
+                self.logger.info('Labels are improved by {:.2f}+-{:.2f}->{:.2f}+-{:.2f} (Soil) '
+                                .format(noisy_classwise_mean[0], noisy_classwise_std[0], 
+                                cleaned_classwise_mean[0], cleaned_classwise_std[0]) + 
+                                '{:.2f}+-{:.2f}->{:.2f}+-{:.2f} (Bedrock) '
+                                .format(noisy_classwise_mean[1], noisy_classwise_std[1], 
+                                cleaned_classwise_mean[1], cleaned_classwise_std[1]) + 
+                                '{:.2f}+-{:.2f}->{:.2f}+-{:.2f} (Sand) '
+                                .format(noisy_classwise_mean[2], noisy_classwise_std[2], 
+                                cleaned_classwise_mean[2], cleaned_classwise_std[2]) +
+                                '{:.2f}+-{:.2f}->{:.2f}+-{:.2f} (BigRock) '
+                                .format(noisy_classwise_mean[3], noisy_classwise_std[3], 
+                                cleaned_classwise_mean[3], cleaned_classwise_std[3]) +
                                 '{:.2f}+-{:.2f}->{:.2f}+-{:.2f} (Average) '
                                 .format(noisy_total_mean, noisy_total_std, cleaned_total_mean, cleaned_total_std))
             else:

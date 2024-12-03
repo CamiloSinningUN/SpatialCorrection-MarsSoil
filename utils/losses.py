@@ -7,6 +7,8 @@ def get_loss_f(**kwarg):
     dataset = kwarg['dataset']
     if dataset == 'Jsrt':
         return WeightedBCE(kwarg['device'], kwarg['num_class'])
+    if dataset == 'mars_soil':
+        return WeightedBCE(kwarg['device'], kwarg['num_class'])
     if dataset == 'Brats2020':
         return SoftDiceBCEWithLogitsLoss()
         #return nn.BCEWithLogitsLoss()
@@ -23,6 +25,8 @@ class SCELoss(torch.nn.Module):
         self.beta = beta
         if dataset == 'Jsrt':       
             self.bce = WeightedBCE(device, 3)
+        elif dataset == 'mars_soil':
+            self.bce = WeightedBCE(device, 5)
         else:
             self.bce = nn.BCEWithLogitsLoss()
 
