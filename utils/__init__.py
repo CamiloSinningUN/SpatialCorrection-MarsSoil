@@ -1,4 +1,4 @@
-from .dataset import ISICDataset, JSRTDataset, BratsDataset, LIDCDataset
+from .dataset import ISICDataset, JSRTDataset, BratsDataset, LIDCDataset, MarsSoilDataset
 from .dice_loss import dice_coeff
 from .losses import get_loss_f
 from .training import Trainer
