@@ -39,6 +39,17 @@ class Visualizer():
                 images.append(image)
             lung_with_mask = [draw_segmentation_masks(image, masks=mask, alpha=.6, colors=['blue', 'green', 'yellow']) 
                     for image, mask in zip(images, masks)]
+        elif self.dataset == 'mars_soil':
+            for i in self.indices:
+                data = dataloader.dataset[i]
+                image = data['image'].squeeze().numpy()
+                mask = data['mask'].squeeze().to(torch.bool)
+                image = np.array([image]*3)
+                image = torch.Tensor(image).to(torch.uint8)
+                images.append(image)
+                masks.append(mask)
+            lung_with_mask = [draw_segmentation_masks(image, masks=mask, alpha=.6, colors=['red']) 
+                    for image, mask in zip(images, masks)]
         elif self.dataset == 'LIDC-IDRI':
             for i in self.indices:
                 data = dataloader.dataset[i]
@@ -86,7 +97,7 @@ class Visualizer():
             for iter, batch in enumerate(dataloader):
                 if iter > self.num-1:
                     break
-                if self.dataset == 'Jsrt' or self.dataset == 'LIDC-IDRI':
+                if self.dataset == 'Jsrt' or self.dataset == 'LIDC-IDRI' or self.dataset == 'mars_soil':
                     image = batch['image'].squeeze().numpy()
                     pred = batch['mask'].squeeze()
                     preds.append(pred.to(torch.bool))
