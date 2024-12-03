@@ -48,7 +48,7 @@ class Visualizer():
                 image = torch.Tensor(image).to(torch.uint8)
                 images.append(image)
                 masks.append(mask)
-            lung_with_mask = [draw_segmentation_masks(image, masks=mask, alpha=.6, colors=['red']) 
+            lung_with_mask = [draw_segmentation_masks(image, masks=mask, alpha=.6, colors=['blue', 'green', 'yellow', 'red', 'purple']) 
                     for image, mask in zip(images, masks)]
         elif self.dataset == 'LIDC-IDRI':
             for i in self.indices:
