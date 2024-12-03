@@ -141,9 +141,9 @@ def get_input(args):
         else:
             return train_loader, valid_loader, test_loader
     elif args.dataset == 'mars_soil':
-        train_dataset = MarsSoilDataset(datapath=args.tr, mode='train')
-        valid_dataset = MarsSoilDataset(datapath=args.val, mode='val')
-        test_dataset = MarsSoilDataset(datapath=args.test, mode='test')
+        train_dataset = MarsSoilDataset(datapath=args.imgs_tr, mode='train')
+        valid_dataset = MarsSoilDataset(datapath=args.imgs_val, mode='val')
+        test_dataset = MarsSoilDataset(datapath=args.imgs_test, mode='test')
         train_loader = torch.utils.data.DataLoader(train_dataset,
                 batch_size=args.batch_size, shuffle=True,
                 num_workers=args.num_cpu)
