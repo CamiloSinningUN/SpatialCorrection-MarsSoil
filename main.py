@@ -154,7 +154,7 @@ def get_input(args):
                 batch_size=1, shuffle=False,
                 num_workers=args.num_cpu)
         if args.show_clean_performance == True:
-            true_dataset = MarsSoilDataset(datapath=args.tr, mode='clean')
+            true_dataset = MarsSoilDataset(datapath=args.imgs_tr, mode='clean')
             true_loader = torch.utils.data.DataLoader(true_dataset,
                 batch_size=1, shuffle=False,
                 num_workers=args.num_cpu)
