@@ -157,6 +157,9 @@ class Visualizer():
         if self.dataset == 'Jsrt':
             lung_with_mask = [draw_segmentation_masks(image, masks=mask, alpha=.6, colors=['blue', 'green', 'yellow']) 
                         for image, mask in zip(images, preds)]
+        elif self.dataset == 'mars_soil':
+            lung_with_mask = [draw_segmentation_masks(image, masks=mask, alpha=.6, colors=['blue', 'green', 'yellow', 'red', 'purple']) 
+                        for image, mask in zip(images, preds)]
         else:
             lung_with_mask = [draw_segmentation_masks(image, masks=mask, alpha=.5, colors=['red']) 
                     for image, mask in zip(images, preds)]
